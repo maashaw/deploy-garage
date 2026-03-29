@@ -1,0 +1,27 @@
+# VM Host Agent
+qemu-guest-agent
+
+# Nano (for editing config files etc)
+nano
+
+# Docker (for running payloads)
+docker-ce
+docker-ce-cli
+containerd.io
+docker-buildx-plugin
+docker-compose-plugin
+
+# Tailscale (for overlay networking)
+tailscale
+
+# Clevis (for policy-based decryption)
+clevis
+clevis-luks
+clevis-initramfs
+
+# Avahi (for mDNS support)
+avahi-daemon
+avahi-discover
+avahi-utils
+
+
