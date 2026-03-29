@@ -1,4 +1,4 @@
-replication_factor = 3
+replication_factor = 1
 consistency_mode = "consistent"
 
 metadata_dir = "/var/lib/garage/meta"

@@ -153,11 +153,6 @@ if [[ -d "$PAYLOAD_DIR" ]]; then
   chown -R "$TARGET_USER:$TARGET_GROUP" "$HOME_DIR"
 fi
 
-[[ -f "$HOME_DIR/garage/garage.toml" ]] || {
-  echo "Error: expected $HOME_DIR/garage/garage.toml after payload copy" >&2
-  exit 1
-}
-
 # Allow target user to write secrets in EPHEMERAL_DIR
 chown -R "$TARGET_USER:$TARGET_GROUP" "$EPHEMERAL_DIR"
 chmod 700 "$EPHEMERAL_DIR"
@@ -169,7 +164,7 @@ sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash "$PERSONALISE_CONFIG_SCRIPT" \
   "$HOME_DIR/garage/vols/garage.toml" \
   "$EPHEMERAL_DIR" \
   "$BOOTSTRAP_PEERS_FILE" \
-  "$PAYLOAD_DIR/garage.template.toml"
+  "$PAYLOAD_DIR/garage/garage.template.toml"
 
 echo "14) docker compose up -d, then reboot"
 sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash -lc "cd \"$HOME_DIR/garage\" && (docker compose up -d || docker compose up -d)"
