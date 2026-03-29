@@ -83,35 +83,35 @@ else
   echo "Warning: old login key file not found: $OLD_LOGIN_PASSWORD_FILE"
 fi
 
-echo "1) Replace LUKS volume key"
+echo "1) Generate ephemeral credentials + SSH key"
+bash "$PERSONALISE_SCRIPT" "$EPHEMERAL_DIR"
+
+echo "2) Replace LUKS volume key"
 bash "$REKEY_LUKS_SCRIPT" \
   --old-password-file "$OLD_LUKS_PASSWORD_FILE" \
   --new-password-file "$EPHEMERAL_DIR/luks_password.txt" \
   --clevis-policy-file "$CLEVIS_POLICY_FILE"
 
-echo "2) Expand disk"
+echo "3) Expand disk"
 bash "$EXPAND_SCRIPT"
 
-echo "3) Set up serial port"
+echo "4) Set up serial port"
 bash "$ADD_SERIAL_SCRIPT"
 
-echo "4) Update initramfs"
+echo "5) Update initramfs"
 update-initramfs -u -k 'all'
 
-echo "5) Change hostname to short random value"
+echo "6) Change hostname to short random value"
 NEW_HOSTNAME="n$(openssl rand -hex 6)"
 hostnamectl set-hostname "$NEW_HOSTNAME"
 printf '%s' "$NEW_HOSTNAME" > "$EPHEMERAL_DIR/hostname.txt"
 chown "$TARGET_USER:$TARGET_GROUP" "$EPHEMERAL_DIR/hostname.txt"
 chmod 600 "$EPHEMERAL_DIR/hostname.txt"
 
-echo "6) Clear machine-id"
+echo "7) Clear machine-id"
 truncate -s0 /etc/machine-id
 rm -f /var/lib/dbus/machine-id
 ln -s /etc/machine-id /var/lib/dbus/machine-id
-
-echo "7) Generate ephemeral credentials + SSH key"
-bash "$PERSONALISE_SCRIPT" "$EPHEMERAL_DIR"
 
 echo "8) Change login password"
 LOGIN_PASSWORD="$(cat "$EPHEMERAL_DIR/login_password.txt")"
