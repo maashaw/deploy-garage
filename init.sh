@@ -12,7 +12,7 @@ EPHEMERAL_DIR="$REPO_ROOT/ephemeral"
 
 PACKAGES_FILE="$CONFIG_DIR/packages.list"
 CLEVIS_POLICY_FILE="$CONFIG_DIR/tang.json"
-BOOTSTRAP_PEERS_FILE="$CONFIG_DIR/garage-nodes.txt"
+BOOTSTRAP_PEERS_FILE="$CONFIG_DIR/garage-nodes.list"
 
 ADD_DOCKER_REPO_SCRIPT="$SCRIPTS_DIR/add_repo_docker.sh"
 ADD_TAILSCALE_REPO_SCRIPT="$SCRIPTS_DIR/add_repo_tailscale.sh"
