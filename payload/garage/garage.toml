@@ -1,0 +1,53 @@
+replication_factor = 3
+consistency_mode = "consistent"
+
+metadata_dir = "/var/lib/garage/meta"
+data_dir = "/var/lib/garage/data"
+metadata_snapshots_dir = "/var/lib/garage/snapshots"
+metadata_fsync = true
+data_fsync = false
+disable_scrub = false
+use_local_tz = false
+metadata_auto_snapshot_interval = "1h"
+
+db_engine = "lmdb"
+
+block_size = "1M"
+block_ram_buffer_max = "256MiB"
+block_max_concurrent_reads = 16
+block_max_concurrent_writes_per_request =10
+lmdb_map_size = "1T"
+
+compression_level = 1
+
+rpc_secret = "RPC_SECRET_REPLACE"
+rpc_bind_addr = "[::]:3901"
+rpc_bind_outgoing = false
+# rpc_public_addr = "[fc00:1::1]:3901"
+# or set rpc_public_adr_subnet to filter down autodiscovery to a subnet:
+# rpc_public_addr_subnet = "2001:0db8:f00:b00:/64"
+
+
+allow_world_readable_secrets = false
+
+bootstrap_peers = [
+    BOOTSTRAP_PEERS_REPLACE
+]
+
+allow_punycode = false
+
+[s3_api]
+api_bind_addr = "[::]:3900"
+s3_region = "garage"
+root_domain = ".s3.remoteno.de"
+
+[s3_web]
+bind_addr = "[::]:3902"
+root_domain = ".s3web.remoteno.de"
+add_host_to_metrics = true
+
+[admin]
+api_bind_addr = "0.0.0.0:3903"
+metrics_token = "METRICS_TOKEN_REPLACE"
+metrics_require_token = true
+admin_token = "ADMIN_TOKEN_REPLACE"

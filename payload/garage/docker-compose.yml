@@ -1,7 +1,11 @@
-//
-//  Untitled.swift
-//  
-//
-//  Created by Michael Shaw on 29/03/2026.
-//
+version: "3"
 
+services:
+  garage:
+    image: dxflrs/garage:v2.2.0
+    network_mode: "host"
+    restart: unless-stopped
+    volumes:
+      - /home/michael/garage/vols/garage.toml:/etc/garage.toml
+      - /home/michael/garage/vols/meta:/var/lib/garage/meta
+      - /home/michael/garage/vols/data:/var/lib/garage/data
