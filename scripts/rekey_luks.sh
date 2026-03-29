@@ -90,10 +90,10 @@ if [[ -n "$clevis_policy_file" ]]; then
 fi
 
 echo "Changing LUKS key on $device..." | tee -a "$log_file"
-sudo cryptsetup luksChangeKey "$device" --key-file "$old_pw_file" --new-keyfile "$new_pw_file"
+sudo cryptsetup luksChangeKey "$device" -d "$old_pw_file" "$new_pw_file"
 
 echo "Changing LUKS Volume Key (slow) on $device..." | tee -a "$log_file"
-sudo cryptsetup reencrypt "$device" --key-file "$new_pw_file" --key-slot 0
+sudo cryptsetup reencrypt "$device" -d "$new_pw_file" --key-slot 0
 
 echo "Enabling Clevis policy-based decryption on $device..." | tee -a "$log_file"
 sudo clevis luks bind -y -d "$device" -k "$new_pw_file" sss "$clevis_policy"
