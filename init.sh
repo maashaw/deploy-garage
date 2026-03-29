@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-DEVICE="/dev/sda3"
-
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 SCRIPTS_DIR="$REPO_ROOT/scripts"
@@ -23,7 +21,7 @@ PERSONALISE_SCRIPT="$SCRIPTS_DIR/make_secrets.sh"
 REKEY_LUKS_SCRIPT="$SCRIPTS_DIR/rekey_luks.sh"
 EXPAND_SCRIPT="$SCRIPTS_DIR/expand.sh"
 ADD_SERIAL_SCRIPT="$SCRIPTS_DIR/add_serial_port.sh"
-REKEY_SSH_SCRIPT="$SCRIPTS_DIR/rekey.sh"
+REKEY_SSH_SCRIPT="$SCRIPTS_DIR/rekey_ssh_access.sh"
 
 PERSONALISE_CONFIG_SCRIPT="$PAYLOAD_DIR/garage/personalise-config.sh"
 
@@ -98,7 +96,6 @@ bash "$PERSONALISE_SCRIPT" "$EPHEMERAL_DIR"
 
 echo "4) Replace LUKS volume key"
 bash "$REKEY_LUKS_SCRIPT" \
-  --device "$DEVICE" \
   --old-password-file "$OLD_LUKS_PASSWORD_FILE" \
   --new-password-file "$EPHEMERAL_DIR/luks_password.txt" \
   --clevis-policy-file "$CLEVIS_POLICY_FILE"
@@ -146,17 +143,27 @@ echo "12) Generate authorized_keys"
 sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash "$REKEY_SSH_SCRIPT" --overwrite "$KEYS_DIR"
 sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash "$REKEY_SSH_SCRIPT" "$EPHEMERAL_DIR"
 
-echo "13) Move payload contents to home and personalise garage.toml"
+echo "13) Copy payload contents to home"
 if [[ -d "$PAYLOAD_DIR" ]]; then
   shopt -s dotglob nullglob
   for item in "$PAYLOAD_DIR"/*; do
-    mv "$item" "$HOME_DIR/"
+    cp -a "$item" "$HOME_DIR/"
   done
   shopt -u dotglob nullglob
   chown -R "$TARGET_USER:$TARGET_GROUP" "$HOME_DIR"
 fi
 
-[[ -f "$HOME_DIR/garage.toml" ]] || { echo "Error: expected $HOME_DIR/garage.toml after payload move"; exit 1; }
+[[ -f "$HOME_DIR/garage.toml" ]] || {
+  echo "Error: expected $HOME_DIR/garage.toml after payload copy" >&2
+  exit 1
+}
+
+# Allow target user to write secrets in EPHEMERAL_DIR
+chown -R "$TARGET_USER:$TARGET_GROUP" "$EPHEMERAL_DIR"
+chmod 700 "$EPHEMERAL_DIR"
+
+# Hardening: ensure files are private
+find "$EPHEMERAL_DIR" -type f -exec chmod 600 {} \;
 
 sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash "$PERSONALISE_CONFIG_SCRIPT" \
   "$HOME_DIR/garage.toml" \
