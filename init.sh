@@ -86,38 +86,23 @@ fi
 echo "1) Generate ephemeral credentials + SSH key"
 bash "$PERSONALISE_SCRIPT" "$EPHEMERAL_DIR"
 
-echo "2) Replace LUKS volume key"
-bash "$REKEY_LUKS_SCRIPT" \
-  --old-password-file "$OLD_LUKS_PASSWORD_FILE" \
-  --new-password-file "$EPHEMERAL_DIR/luks_password.txt" \
-  --clevis-policy-file "$CLEVIS_POLICY_FILE"
-
-echo "3) Expand disk"
-bash "$EXPAND_SCRIPT"
-
-echo "4) Set up serial port"
-bash "$ADD_SERIAL_SCRIPT"
-
-echo "5) Update initramfs"
-update-initramfs -u -k 'all'
-
-echo "6) Change hostname to short random value"
+echo "2) Change hostname to short random value"
 NEW_HOSTNAME="n$(openssl rand -hex 6)"
 hostnamectl set-hostname "$NEW_HOSTNAME"
 printf '%s' "$NEW_HOSTNAME" > "$EPHEMERAL_DIR/hostname.txt"
 chown "$TARGET_USER:$TARGET_GROUP" "$EPHEMERAL_DIR/hostname.txt"
 chmod 600 "$EPHEMERAL_DIR/hostname.txt"
 
-echo "7) Clear machine-id"
+echo "3) Clear machine-id"
 truncate -s0 /etc/machine-id
 rm -f /var/lib/dbus/machine-id
 ln -s /etc/machine-id /var/lib/dbus/machine-id
 
-echo "8) Change login password"
+echo "4) Change login password"
 LOGIN_PASSWORD="$(cat "$EPHEMERAL_DIR/login_password.txt")"
 printf '%s:%s\n' "$TARGET_USER" "$LOGIN_PASSWORD" | chpasswd
 
-echo "9) Remove existing SSH keys and replace with generated key"
+echo "5) Remove existing SSH keys and replace with generated key"
 SSH_DIR="$HOME_DIR/.ssh"
 install -d -m 700 -o "$TARGET_USER" -g "$TARGET_GROUP" "$SSH_DIR"
 rm -f \
@@ -130,18 +115,33 @@ rm -f \
 install -m 600 -o "$TARGET_USER" -g "$TARGET_GROUP" "$EPHEMERAL_DIR/id_ed25519" "$SSH_DIR/id_ed25519"
 install -m 644 -o "$TARGET_USER" -g "$TARGET_GROUP" "$EPHEMERAL_DIR/id_ed25519.pub" "$SSH_DIR/id_ed25519.pub"
 
-echo "10) Generate authorized_keys"
+echo "6) Generate authorized_keys"
 # Start from repo keys, then also add generated ephemeral pub key
 sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash "$REKEY_SSH_SCRIPT" --overwrite "$KEYS_DIR"
 sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash "$REKEY_SSH_SCRIPT" "$EPHEMERAL_DIR"
 
-echo "11) Add repos"
+echo "7) Add repos"
 bash "$ADD_DOCKER_REPO_SCRIPT"
 bash "$ADD_TAILSCALE_REPO_SCRIPT"
 
-echo "12) Install required packages"
+echo "8) Install required packages"
 apt-get update
 bash "$INSTALL_SCRIPT" "$PACKAGES_FILE"
+
+echo "9) Replace LUKS volume key"
+bash "$REKEY_LUKS_SCRIPT" \
+  --old-password-file "$OLD_LUKS_PASSWORD_FILE" \
+  --new-password-file "$EPHEMERAL_DIR/luks_password.txt" \
+  --clevis-policy-file "$CLEVIS_POLICY_FILE"
+
+echo "10) Expand disk"
+bash "$EXPAND_SCRIPT"
+
+echo "11) Set up serial port"
+bash "$ADD_SERIAL_SCRIPT"
+
+echo "12) Update initramfs"
+update-initramfs -u -k 'all'
 
 echo "13) Copy payload contents to home"
 if [[ -d "$PAYLOAD_DIR" ]]; then
