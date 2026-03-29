@@ -153,8 +153,8 @@ if [[ -d "$PAYLOAD_DIR" ]]; then
   chown -R "$TARGET_USER:$TARGET_GROUP" "$HOME_DIR"
 fi
 
-[[ -f "$HOME_DIR/garage.toml" ]] || {
-  echo "Error: expected $HOME_DIR/garage.toml after payload copy" >&2
+[[ -f "$HOME_DIR/garage/garage.toml" ]] || {
+  echo "Error: expected $HOME_DIR/garage/garage.toml after payload copy" >&2
   exit 1
 }
 
@@ -166,12 +166,13 @@ chmod 700 "$EPHEMERAL_DIR"
 find "$EPHEMERAL_DIR" -type f -exec chmod 600 {} \;
 
 sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash "$PERSONALISE_CONFIG_SCRIPT" \
-  "$HOME_DIR/garage.toml" \
+  "$HOME_DIR/garage/vols/garage.toml" \
   "$EPHEMERAL_DIR" \
   "$BOOTSTRAP_PEERS_FILE" \
-  "$HOME_DIR/garage.toml"
+  "$PAYLOAD_DIR/garage.template.toml"
 
-echo "14) docker-compose up -d, then reboot"
-sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash -lc "cd \"$HOME_DIR\" && (docker-compose up -d || docker compose up -d)"
+echo "14) docker compose up -d, then reboot"
+sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash -lc "cd \"$HOME_DIR/garage\" && (docker compose up -d || docker compose up -d)"
+sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash -lc "cd \"$HOME_DIR/garage\" && docker exec garage-garage-1 /garage status"
 
 reboot
