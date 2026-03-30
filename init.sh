@@ -167,7 +167,7 @@ sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash "$PERSONALISE_CONFIG_SCRIPT" \
   "$PAYLOAD_DIR/garage/garage.template.toml"
 
 echo "14) docker compose up -d, then reboot"
-sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash -lc "cd \"$HOME_DIR/garage\" && (docker compose up -d || docker compose up -d)"
-sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash -lc "cd \"$HOME_DIR/garage\" && docker exec garage-garage-1 /garage status"
+cd "$HOME_DIR/garage" && docker compose up -d
+cd "$HOME_DIR/garage" && docker exec garage-garage-1 /garage status
 
 reboot
