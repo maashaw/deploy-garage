@@ -17,6 +17,7 @@ BOOTSTRAP_PEERS_FILE="$CONFIG_DIR/garage-nodes.list"
 ADD_DOCKER_REPO_SCRIPT="$SCRIPTS_DIR/add_repo_docker.sh"
 ADD_TAILSCALE_REPO_SCRIPT="$SCRIPTS_DIR/add_repo_tailscale.sh"
 INSTALL_SCRIPT="$SCRIPTS_DIR/install.sh"
+CLEAR_SSH_SCRIPT="$SCRIPTS_DIR/clear_ssh_keys.sh"
 PERSONALISE_SCRIPT="$SCRIPTS_DIR/make_secrets.sh"
 REKEY_LUKS_SCRIPT="$SCRIPTS_DIR/rekey_luks.sh"
 EXPAND_SCRIPT="$SCRIPTS_DIR/expand.sh"
@@ -84,6 +85,7 @@ else
 fi
 
 echo "1) Generate ephemeral credentials + SSH key"
+bash "$CLEAR_SSH_SCRIPT"
 bash "$PERSONALISE_SCRIPT" "$EPHEMERAL_DIR"
 
 echo "2) Change hostname to short random value"
@@ -166,8 +168,9 @@ sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash "$PERSONALISE_CONFIG_SCRIPT" \
   "$BOOTSTRAP_PEERS_FILE" \
   "$PAYLOAD_DIR/garage/garage.template.toml"
 
-echo "14) docker compose up -d, then reboot"
-cd "$HOME_DIR/garage" && docker compose up -d
-cd "$HOME_DIR/garage" && docker exec garage-garage-1 /garage status
+# These are commended out to allow for configuration prior to running containers
+# echo "14) docker compose up -d, then reboot"
+# cd "$HOME_DIR/garage" && docker compose up -d
+# cd "$HOME_DIR/garage" && docker exec garage-garage-1 /garage status
 
 reboot

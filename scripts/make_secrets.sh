@@ -1,8 +1,9 @@
 #!/bin/bash
+# Generate login password, LUKS password, and SSH keypair
 
 set -euo pipefail
 if [[ $# -ne 1 ]]; then
-  echo "Usage: $0 /path/to/output-folder" >&2
+  echo "Specify a file to save generated secrets! Usage: $0 /path/to/output-folder" >&2
   exit 1
 fi
 
@@ -24,7 +25,8 @@ umask 077
 openssl rand -base64 24 | tr -d '\n' > "$login_pw_file"
 openssl rand -base64 48 | tr -d '\n' > "$luks_pw_file"
 
-# Generate new Ed25519 SSH keypair (empty passphrase)
+# Clear existing key file, and generate a new Ed25519 SSH keypair (empty passphrase)
+rm -f "$ssh_key_file" "${ssh_key_file}.pub"
 ssh-keygen -q -t ed25519 -N "" -f "$ssh_key_file" -C "ephemeral-$(date +%Y%m%d-%H%M%S)"
 
 chmod 600 "$login_pw_file" "$luks_pw_file" "$ssh_key_file"
