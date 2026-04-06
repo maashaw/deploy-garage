@@ -170,3 +170,4 @@ Prepare a base Ubuntu Server 24.04 LTS image with OpenSSH, Git, and LUKS full-di
 ## License
 
 This project is licensed under GPLv3
+```
