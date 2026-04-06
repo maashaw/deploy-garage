@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+# ---------- Define Parameters ----------
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 SCRIPTS_DIR="$REPO_ROOT/scripts"
@@ -18,6 +20,7 @@ ADD_DOCKER_REPO_SCRIPT="$SCRIPTS_DIR/add_repo_docker.sh"
 ADD_TAILSCALE_REPO_SCRIPT="$SCRIPTS_DIR/add_repo_tailscale.sh"
 INSTALL_SCRIPT="$SCRIPTS_DIR/install.sh"
 CLEAR_SSH_SCRIPT="$SCRIPTS_DIR/clear_ssh_keys.sh"
+CONFIGURE_SSH_SCRIPT="$SCRIPTS_DIR/configure_ssh_access.sh"
 PERSONALISE_SCRIPT="$SCRIPTS_DIR/make_secrets.sh"
 REKEY_LUKS_SCRIPT="$SCRIPTS_DIR/rekey_luks.sh"
 EXPAND_SCRIPT="$SCRIPTS_DIR/expand.sh"
@@ -30,7 +33,8 @@ OLD_LOGIN_PASSWORD_FILE="$EPHEMERAL_DIR/old_login_key.pw"
 OLD_LUKS_PASSWORD_FILE="$EPHEMERAL_DIR/old_luks_key.pw"
 
 TARGET_USER="${SUDO_USER:-}"
-# ------------------------------------
+
+# ---------- Helper Functions ----------
 
 trim_trailing_newlines() {
   local file="$1"
@@ -39,6 +43,8 @@ trim_trailing_newlines() {
   printf '%s' "$content" > "$file"
   chmod 600 "$file"
 }
+
+# ---------- preflight checks ----------
 
 [[ $EUID -eq 0 ]] || { echo "Error: run with sudo/root."; exit 1; }
 [[ -n "$TARGET_USER" ]] || { echo "Error: could not determine target user from SUDO_USER."; exit 1; }
@@ -58,10 +64,13 @@ mkdir -p "$EPHEMERAL_DIR"
 [[ -d "$EPHEMERAL_DIR" ]] || { echo "Error: ephemeral directory missing/unusable: $EPHEMERAL_DIR"; exit 1; }
 [[ -w "$EPHEMERAL_DIR" ]] || { echo "Error: ephemeral directory not writable: $EPHEMERAL_DIR"; exit 1; }
 
+# Check that required files exist
 for f in \
   "$ADD_DOCKER_REPO_SCRIPT" \
   "$ADD_TAILSCALE_REPO_SCRIPT" \
   "$INSTALL_SCRIPT" \
+  "$CLEAR_SSH_SCRIPT" \
+  "$CONFIGURE_SSH_SCRIPT" \
   "$PERSONALISE_SCRIPT" \
   "$REKEY_LUKS_SCRIPT" \
   "$EXPAND_SCRIPT" \
@@ -84,7 +93,10 @@ else
   echo "Warning: old login key file not found: $OLD_LOGIN_PASSWORD_FILE"
 fi
 
+# ---------- main ----------
+
 echo "1) Generate ephemeral credentials + SSH key"
+bash "$CLEAR_SSH_SCRIPT"
 bash "$CLEAR_SSH_SCRIPT"
 bash "$PERSONALISE_SCRIPT" "$EPHEMERAL_DIR"
 
