@@ -1,6 +1,6 @@
-# Ephemoral Data Directory
+# Ephemeral Data Directory
 
-This directory will be populated with ephemoral node data created during configuration of the node.
+This directory will be populated with ephemeral node data created during configuration of the node.
 
 ephemeral/                   # Temporary credential files
 ├── old_login_key.pw         # Default user login key
