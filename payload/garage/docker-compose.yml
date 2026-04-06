@@ -23,3 +23,18 @@ services:
     environment:
       API_BASE_URL: "http://garage:3903"
       S3_ENDPOINT_URL: "http://garage:3900"
+      
+  caddy:
+    image: caddy-route53:latest
+    build: .
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - /home/michael/caddy/conf:/etc/caddy
+      - /home/michael/caddy/site:/srv
+      - /home/michael/caddy/data:/data
+      - /home/michael/caddy/config:/config
