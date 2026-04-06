@@ -49,7 +49,7 @@ deploy-garage/
 ├── scripts/                     # Modular shell scripts called by init.sh
 ├── config/
 │   ├── tang.json                # Tang server configuration for Clevis/NBDE
-│   └── garage-node.list         # Bootstrap peer addresses for Garage
+│   └── garage-nodes.list        # Bootstrap peer addresses for Garage
 ├── ephemeral/                   # Temporary credential files
 │   ├── *.pw                     # Default password files
 │   ├── *.txt                    # Generated password and other unique files - after deployment
