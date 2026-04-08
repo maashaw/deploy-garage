@@ -148,8 +148,12 @@ bash "$REKEY_LUKS_SCRIPT" \
   --new-password-file "$EPHEMERAL_DIR/luks_password.txt" \
   --clevis-policy-file "$CLEVIS_POLICY_FILE"
 
-echo "10) Expand disk"
-bash "$EXPAND_SCRIPT"
+echo "10) Expand disk (non-fatal)"
+if bash "$EXPAND_SCRIPT"; then
+  echo "Disk expansion step completed."
+else
+  echo "Warning: disk expansion failed or not required; continuing."
+fi
 
 echo "11) Set up serial port"
 bash "$ADD_SERIAL_SCRIPT"
