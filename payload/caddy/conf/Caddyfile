@@ -6,11 +6,12 @@
         # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 }
 
-# e.g. garage-newyork-001.mydomain.com
+# e.g. garage-nyc-001.mydomain.com
 garage-region-node.example.com {
-        reverse_proxy 127.0.0.1:8096
+        reverse_proxy 127.0.0.1:3900
         tls {
                 # Change route53 to your DNS plugin of choice
+                # (NB will need to update Dockerfile and rebuild container!)
                 dns route53 {
                         # Enter credentials for DNS ACME challenge - NB varies by plugin, read the docs!
                         access_key_id "..."
@@ -18,8 +19,11 @@ garage-region-node.example.com {
                         hosted_zone_id "..."
                         route53_max_wait 2m
                 }
-                # Specifying resolvers for the challenge avoids an issue where your domain si served by seperate public and private DNSes that do not return the same records
-                # This can confuse caddy, because it might ask your provider to set _acme_challenge.garage-paris-047.mydomain.com, but your internal DNS may not resolve this, causing caddy to assume that the operation failed, and abort the challenge
+                # Specifying resolvers for the challenge avoids an issue where your domain is served by
+                # seperate public and private DNSes that do not return the same records
+                # This can confuse caddy, because it might ask your provider to set
+                # _acme_challenge.garage-par-047.example.com, but your internal DNS may not resolve this,
+                # causing caddy to assume that the operation failed, and abort the challenge
                 resolvers 8.8.8.8 1.1.1.1 9.9.9.9 208.67.222.222
         }
 }
