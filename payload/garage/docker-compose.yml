@@ -3,9 +3,9 @@ services:
     image: dxflrs/garage:v2.2.0
     restart: unless-stopped
     volumes:
-      - /home/michael/garage/vols/garage.toml:/etc/garage.toml
-      - /home/michael/garage/vols/meta:/var/lib/garage/meta
-      - /home/michael/garage/vols/data:/var/lib/garage/data
+      - __HOME_DIR__/garage/vols/garage.toml:/etc/garage.toml
+      - __HOME_DIR__/garage/vols/meta:/var/lib/garage/meta
+      - __HOME_DIR__/garage/vols/data:/var/lib/garage/data
     ports:
       - 3900:3900
       - 3901:3901
@@ -34,7 +34,7 @@ services:
       - "443:443"
       - "443:443/udp"
     volumes:
-      - /home/michael/caddy/conf:/etc/caddy
-      - /home/michael/caddy/site:/srv
-      - /home/michael/caddy/data:/data
-      - /home/michael/caddy/config:/config
+      - __HOME_DIR__/caddy/conf:/etc/caddy
+      - __HOME_DIR__/caddy/site:/srv
+      - __HOME_DIR__/caddy/data:/data
+      - __HOME_DIR__/caddy/config:/config

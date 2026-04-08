@@ -15,6 +15,8 @@ EPHEMERAL_DIR="$REPO_ROOT/ephemeral"
 PACKAGES_FILE="$CONFIG_DIR/packages.list"
 CLEVIS_POLICY_FILE="$CONFIG_DIR/tang.json"
 BOOTSTRAP_PEERS_FILE="$CONFIG_DIR/garage-nodes.list"
+GARAGE_TEMPLATE_FILE="$PAYLOAD_DIR/garage/garage.template.toml"
+DOCKER_COMPOSE_TEMPLATE_FILE="$PAYLOAD_DIR/garage/docker-compose.template.yml"
 
 ADD_DOCKER_REPO_SCRIPT="$SCRIPTS_DIR/add_repo_docker.sh"
 ADD_TAILSCALE_REPO_SCRIPT="$SCRIPTS_DIR/add_repo_tailscale.sh"
@@ -79,7 +81,9 @@ for f in \
   "$PERSONALISE_CONFIG_SCRIPT" \
   "$PACKAGES_FILE" \
   "$CLEVIS_POLICY_FILE" \
-  "$BOOTSTRAP_PEERS_FILE"
+  "$BOOTSTRAP_PEERS_FILE" \
+  "$GARAGE_TEMPLATE_FILE" \
+  "$DOCKER_COMPOSE_TEMPLATE_FILE"
 do
   [[ -e "$f" ]] || { echo "Error: required file missing: $f"; exit 1; }
 done
@@ -180,9 +184,11 @@ find "$EPHEMERAL_DIR" -type f -exec chmod 600 {} \;
 
 sudo -u "$TARGET_USER" -H HOME="$HOME_DIR" bash "$PERSONALISE_CONFIG_SCRIPT" \
   "$HOME_DIR/garage/vols/garage.toml" \
+  "$HOME_DIR/garage/docker-compose.yml" \
   "$EPHEMERAL_DIR" \
   "$BOOTSTRAP_PEERS_FILE" \
-  "$PAYLOAD_DIR/garage/garage.template.toml"
+  "$GARAGE_TEMPLATE_FILE" \
+  "$DOCKER_COMPOSE_TEMPLATE_FILE"
 
 # These are commended out to allow for configuration prior to running containers
 # echo "14) docker compose up -d, then reboot"

@@ -32,11 +32,20 @@ ssh-keygen -q -t ed25519 -N "" -f "$ssh_key_file" -C "ephemeral-$(date +%Y%m%d-%
 chmod 600 "$login_pw_file" "$luks_pw_file" "$ssh_key_file"
 chmod 644 "$ssh_key_file.pub"
 
+# Ensure generated secrets are owned by the calling user (sudo invoker if present)
+owner_user="${SUDO_USER:-$(id -un)}"
+owner_group="$(id -gn "$owner_user")"
+chown "$owner_user:$owner_group" \
+  "$login_pw_file" \
+  "$luks_pw_file" \
+  "$ssh_key_file" \
+  "$ssh_key_file.pub"
+
 cat <<EOF
 Done. Generated:
   Login password: $login_pw_file
   LUKS password:  $luks_pw_file
   SSH private key: $ssh_key_file
   SSH public key:  $ssh_key_file.pub
+Owned by: $owner_user:$owner_group
 EOF
-
