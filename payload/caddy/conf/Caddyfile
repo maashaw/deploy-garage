@@ -8,7 +8,22 @@
 
 # e.g. garage-nyc-001.mydomain.com
 garage-region-node.example.com {
-        reverse_proxy 127.0.0.1:3900
+        reverse_proxy garage:3900 {
+                header_up -Expect
+                flush_interval -1
+                transport http {
+                        read_buffer 10M
+                        write_buffer 10M
+                        max_response_header 10M
+                        versions 1.1
+                        read_timeout 300s
+                        write_timeout 300s
+                        compression off
+                }
+        }
+        request_body {
+                max_size 5Gb
+        }
         tls {
                 # Change route53 to your DNS plugin of choice
                 # (NB will need to update Dockerfile and rebuild container!)
