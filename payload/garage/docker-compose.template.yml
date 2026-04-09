@@ -17,7 +17,7 @@ services:
     container_name: garage-webui
     restart: unless-stopped
     volumes:
-      - /home/michael/garage/vols/garage.toml:/etc/garage.toml:ro
+      - __HOME_DIR__/garage/vols/garage.toml:/etc/garage.toml:ro
     ports:
       - 3909:3909
     environment:
